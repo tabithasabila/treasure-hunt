@@ -1,6 +1,7 @@
 package main;
 
 import entity.Player;
+import main.obj.SuperObject;
 import main.tile.TileManager;
 
 import javax.swing.*;
@@ -20,23 +21,22 @@ public class GamePanel extends JPanel implements Runnable {
     //WorldSettings
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize * maxWorldRow;
-
 
     //FPS
     int FPS = 60;
 
+    //System
     TileManager tileManager = new TileManager(this);
     KeyHandler keyH = new KeyHandler();
+    Sound sound = new Sound();
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
-    public Player player = new Player(this, keyH);
+    public AssetSetter assetSetter = new AssetSetter(this);
 
-    //Set player default position
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
+    //Entity and object
+    public Player player = new Player(this, keyH);
+    public SuperObject[] obj = new SuperObject[10];
+
 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -46,41 +46,18 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
     }
 
+    public void setUpGame(){
+
+        assetSetter.setObject();
+
+        playMusic(0);
+    }
+
     public void startGameThread(){
         gameThread = new Thread(this);
         gameThread.start();
     }
     @Override
-//    public void run() {
-//        double drawInterval = 1000000000/FPS;  //0.0166666 times a second
-//        double nextDrawTime = System.nanoTime() + drawInterval;
-//
-//        while(gameThread != null){
-//            //System.out.println("This game loop is running");
-//            long currentTime = System.nanoTime();
-//           System.out.println("current Time: " + currentTime);
-//            //1 UPDATE: Update the character position
-//            update();
-//            //2 DRAW: draw  the screen with updated info
-//            repaint();
-//
-//            try {
-//                double remainingTime = nextDrawTime - System.nanoTime();
-//                remainingTime = remainingTime/1000000;
-//
-//                if(remainingTime < 0){
-//                    remainingTime = 0;
-//                }
-//                Thread.sleep((long)remainingTime);
-//
-//                nextDrawTime += drawInterval;
-//
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//    }
-
     public void run() {
         double drawInterval = 1000000000/FPS;  //0.0166666 times a second
         double delta = 0;
@@ -111,8 +88,33 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
+        //Tile
         tileManager.draw(g2);
+
+        //Object
+        for(int i = 0; i < obj.length; i++){
+            if(obj[i] != null){
+                obj[i].draw(g2, this);
+            }
+        }
+
+        //Player
         player.draw(g2);
         g2.dispose();
+    }
+
+    public void playMusic(int i){
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+
+    public void stopMusic(){
+        sound.stop();
+    }
+
+    public void playSE(int i){
+        sound.setFile(i);
+        sound.play();
     }
 }

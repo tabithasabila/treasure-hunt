@@ -2,10 +2,12 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -16,6 +18,7 @@ public class Player extends Entity{
     public final int screenX;
     public final int screenY;
     public int hasKey = 0;
+    int standCounter= 0;
 
     public Player(GamePanel gp, KeyHandler keyH){
         this.gp = gp;
@@ -45,19 +48,30 @@ public class Player extends Entity{
     }
 
     public void getPlayerImage(){
+
+        up1 = setUp("boy_up_1");
+        up2 = setUp("boy_up_2");
+        down1 = setUp("boy_down_1");
+        down2 = setUp("boy_down_2");
+        right1 = setUp("boy_right_1");
+        right2 = setUp("boy_right_2");
+        left1 = setUp("boy_left_1");
+        left2 = setUp("boy_left_2");
+    }
+
+    public BufferedImage setUp(String imageName){
+        UtilityTool uTool = new UtilityTool();
+        BufferedImage image = null;
+
         try{
-            up1 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_up_1.png")));
-            up2 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_up_2.png")));
-            down1 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_down_1.png")));
-            down2= ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_down_2.png")));
-            right1 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_right_1.png")));
-            right2 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_right_2.png")));
-            left1 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_left_1.png")));
-            left2 = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/boy_left_2.png")));
+            image =  ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("player/" + imageName + ".png")));
+            image = uTool.scaledImage(image, gp.tileSize, gp.tileSize);
 
         }catch(IOException e){
             e.printStackTrace();
         }
+
+        return image;
     }
 
     public void update(){
@@ -108,6 +122,13 @@ public class Player extends Entity{
                     spriteNum = 1;
                 }
                 spriteCounter = 0;
+            }
+        }else {
+            standCounter++;
+
+            if(standCounter == 20){
+                spriteNum = 1;
+                standCounter = 0;
             }
         }
 
@@ -193,7 +214,7 @@ public class Player extends Entity{
                 break;
         };
 
-        g2.drawImage(image, screenX,screenY, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX,screenY, null);
 
     }
 
